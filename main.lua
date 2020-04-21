@@ -57,6 +57,7 @@ end
 
 function key.appendBuffer()
     if (math.random(1000) < 25) then
+        buf[core.touch].anim = 1
         -- Append number of items.
         core.touch = core.touch + 1
         -- Create object depending on key config.
@@ -91,6 +92,7 @@ function love.update(dt)
     if core.scene == 1 then
         key.appendBuffer()
         key.scrolling()
+        key.fadeOut()
         memoryCleaner()
     end
 
@@ -103,6 +105,10 @@ end
 
 function key.checkClicked(x)
     for i = 0, core.touch do
+        if (buf[i] ~= nil and buf[i].x == x and buf[i].y > 500 and buf[i].y < 650) then
+            buf[i].anim = buf[i].anim -0.4
+            return (1)
+        end
         if (buf[i] ~= nil and buf[i].x == x and buf[i].y > 500 and buf[i].y < 550) then
             buf[i].y = nil
             buf[i].x = nil
@@ -111,6 +117,17 @@ function key.checkClicked(x)
         end
     end
     return (0)
+end
+
+function key.fadeOut()
+    for i = 0, core.touch do
+        if (buf[i] ~= nil and buf[i].anim < 1) then
+            buf[i].anim = buf[i].ani - 0.1
+        end
+        if (buf[i] ~= nil and buf[i].anim == 0) then
+            buf[i].y = nil buf[i].x = nil buf[i] = nil
+        end
+    end
 end
 
 function love.keypressed(myKey)
@@ -128,11 +145,22 @@ function love.keypressed(myKey)
     end
 end
 
+function core.ui()
+    love.graphics.setColor(1, 1, 1, 0.8) 
+    love.graphics.rectangle("fill", 95, 0, 60, 600) 
+    love.graphics.rectangle("fill", 170, 0, 60, 600) 
+    love.graphics.rectangle("fill", 245, 0, 60, 600) 
+    love.graphics.rectangle("fill", 320, 0, 60, 600) 
+end
+
 function core.drawSceneGame()
     core.ui() for i = 0, core.touch do
         -- If object exist, print it with his right color.
         if (buf[i] ~= nil) then
             love.graphics.setColor(0, 0.66, 0.66, 1)
+            if (buf[i].anim < 1) then 
+                love.graphics.setColor(0, 0.33, 0.33, buf[i].anim)
+            end
             love.graphics.rectangle("fill", buf[i].x, buf[i].y, 50, 30)
         end
     end
@@ -151,3 +179,6 @@ function core.drawSceneMenu()
     love.graphics.setColor(0, 0, 0, 1)
     love.graphics.print("Play", 50, 500, 0, 4, 4)
 end
+
+core["music"] = love.audio.newSource ("68 - Gerudo Valley.mp3", "stream")
+love.audio.play(core.music)
